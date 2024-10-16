@@ -14,6 +14,7 @@ export const HeaderContainer = styled.header`
         width: 3rem;
         height: 3rem;
 
+
         display: flex;
         justify-content: center;
         align-items: center;
@@ -25,11 +26,12 @@ export const HeaderContainer = styled.header`
 
 
         &:hover {
-            border-bottom: 3px solid ${props => props.theme['blue-500']};
+            border-bottom: 3px solid ${props => props.theme['blue-300']};
         }
 
-        &:active {
-            color: ${props => props.theme['blue-500']};
+        &.active {
+            color: ${props => props.theme['blue-300']};
+            border-bottom: 3px solid ${props => props.theme['blue-300']};
         }
 
     }
