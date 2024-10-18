@@ -1,5 +1,8 @@
 import { Play } from "phosphor-react";
 import { useForm } from 'react-hook-form'
+import { useEffect, useState } from "react";
+import { differenceInSeconds } from 'date-fns';
+
 import { 
   CountdownContainer, 
   FormContainer, 
@@ -9,7 +12,7 @@ import {
   StartCountdownButton, 
   TaskInput
 }  from "./styles";
-import { useState } from "react";
+
 
 interface NewcycleFormData{
   task: string;
@@ -20,6 +23,7 @@ interface Cycle{
   id: string 
   task: string
   minutesAmount: number
+  startDate: Date
 }
 
 export function Home() {
@@ -31,6 +35,24 @@ export function Home() {
   const { register, handleSubmit, watch, reset } = useForm(
   )
 
+  const activeCycle = cycles.find((cycle) => cycle.id == activeCycleId)
+
+  useEffect(() => {
+    let interval: number;
+
+    if (activeCycle) {
+      interval = setInterval(() => {
+        setAmountSecondsPassed(differenceInSeconds(new Date(), activeCycle.startDate))
+      }, 1000)
+    }
+
+    return() => {
+      clearInterval(interval)
+    }
+
+  }, [activeCycle])
+
+
   function handleCreateNewCycle(data: NewcycleFormData){
     const id = String(new Date().getTime())
 
@@ -38,14 +60,14 @@ export function Home() {
       id,
       task: data.task,
       minutesAmount: data.minutesAmount,
+      startDate: new Date(),
     }
 
     setCycles((state) => [...cycles, newCycle])
     setActiveCycleId(id)
+    setAmountSecondsPassed(0)
     reset()
   }
-
-  const activeCycle = cycles.find((cycle) => cycle.id == activeCycleId)
 
   const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
   const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
@@ -55,6 +77,12 @@ export function Home() {
 
   const minutes = String(minutesAmount).padStart(2, '0')
   const seconds = String(secondsAmount).padStart(2, '0')
+
+  useEffect(() => {
+    if (activeCycle){
+      document.title = `${minutes}:${seconds}`
+    }
+  }, [minutes, seconds, activeCycle])
 
   const task = watch('task')
   const isSubmitDisabled = !task
